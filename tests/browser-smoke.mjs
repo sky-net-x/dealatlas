@@ -54,6 +54,16 @@ try{
     if(ready)break;
   }
   assert.equal(ready,true,'calculator form loaded');
+  let marketLoaded=false;
+  for(let t=0;t<55;t++){
+    await new Promise(r=>setTimeout(r,300));
+    marketLoaded=await evalJs("document.querySelectorAll('.source-signal-card').length === 6");
+    if(marketLoaded)break;
+  }
+  assert.equal(marketLoaded,true,'six current official Discogs asking-price signals displayed');
+  const disclaimers=await evalJs("({links:document.querySelectorAll('.source-signal-card a').length,disclaimer:document.querySelector('.source-disclaimer').textContent})");
+  assert.equal(disclaimers.links,6);
+  assert.match(disclaimers.disclaimer,/not affiliated with, sponsored or endorsed by Discogs/);
   await evalJs(`(()=>{
     const set=(id,value)=>document.getElementById(id).value=value;
     set('deal-query','Smoke-test camera');
