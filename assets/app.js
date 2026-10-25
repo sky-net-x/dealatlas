@@ -1,4 +1,5 @@
-import {toUSD, calculateGap, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
+import {toUSD, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
+import {describeSoldSample, evaluateResaleCase} from './valuation.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -110,23 +111,46 @@ async function loadFX(){
  updateUI();
 }
 function showResult(){
- const val = (id) => Number($('#'+id).value);
- const result=calculateGap({
-   price:val('deal-price'),currency:$('#deal-currency').value,
-   targetUsd:val('deal-target'),shippingUsd:val('deal-shipping'),otherCostsUsd:val('deal-costs')
- },fx);
- if(!result){
-  $('#deal-result').innerHTML='<div class="result-placeholder">A valid price and exchange rate are required. Try USD or reconnect when live FX is available.</div>';
-  return;
- }
- const negative=result.gap<0;
- const desc=negative?'Estimated total cost exceeds the benchmark value.':'Potential price difference before unentered expenses and resale fees.';
- $('#deal-result').innerHTML='<div class="result-content '+(negative?'negative':'')+'">'+
- '<span class="result-mini">ESTIMATED PRICE GAP · NOT A PROFIT FORECAST</span>'+
- '<div class="result-number">'+(result.gap>0?'+':'')+escapeHtml(shortMoney(result.gap))+'</div>'+
- '<div class="result-breakdown"><div><span>Estimated landed cost</span><strong>'+escapeHtml(shortMoney(result.totalCost))+'</strong></div><div><span>Gap as % of benchmark</span><strong>'+escapeHtml(result.percent.toFixed(1))+'%</strong></div></div>'+
- '<p>'+escapeHtml(desc)+' Exchange rates: '+(fxReady?'Frankfurter daily reference, '+escapeHtml(fxDate):'USD only · no FX feed')+'. Verify actual market comparables and all fees yourself.</p></div>';
+  const val = id => $('#'+id).value.trim()==='' ? null : Number($('#'+id).value);
+  const rawComps=$('#sold-comps').value.trim();
+  const comps=rawComps ? describeSoldSample(rawComps,fx) : null;
+  if(comps?.error){
+    $('#deal-result').textContent='Sold examples need correction: '+comps.error;
+    return;
+  }
+  const benchmarkUsd=comps ? comps.medianUsd : val('deal-target');
+  if(comps)$('#deal-target').value=benchmarkUsd.toFixed(2);
+  const result=evaluateResaleCase({
+    askPrice:val('deal-price'),askCurrency:$('#deal-currency').value,
+    benchmarkUsd,conservativeBenchmarkUsd:comps?.q1Usd ?? null,
+    shippingUsd:val('deal-shipping'),otherCostsUsd:val('deal-costs'),
+    sellingFeePercent:val('deal-fee-rate'),sellingFixedFeeUsd:val('deal-fixed-fee'),
+    reserveUsd:val('deal-reserve'),fxBufferPercent:val('deal-fx-buffer')
+  },fx);
+  if(result.error){
+    $('#deal-result').textContent=result.error+' If FX is unavailable, try USD.';
+    return;
+  }
+  const money=n=>escapeHtml(shortMoney(n));
+  const medianLabel=comps?'At sample median':'At assumed resale value';
+  const cautiousLabel='At sample lower quartile (25th percentile)';
+  const netCard=(name,data)=>'<div class="net-case '+(data.netUsd<0?'net-negative':'')+'"><span>'+escapeHtml(name)+'</span><strong>'+ (data.netUsd>0?'+':'')+money(data.netUsd)+'</strong><small>Assumed sale '+money(data.salePriceUsd)+' · selling fees '+money(data.feeUsd)+'</small></div>';
+  const noPurchase=result.purchaseNotViableAtBasis;
+  const notes=comps
+    ? 'Based on '+comps.count+' unverified, user-entered sold prices. Lower quartile '+money(comps.q1Usd)+', median '+money(comps.medianUsd)+'. These describe your sample, not a future sale-price guarantee. '+comps.cautions.join(' ')
+    : 'The expected resale price is entered manually. No independent sale evidence or conservative range has been supplied.';
+  $('#deal-result').innerHTML='<div class="resale-result">'+
+    '<span class="result-mini">RESALE SCENARIO · NOT A VERIFIED DEAL OR PROFIT FORECAST</span>'+
+    '<div class="net-cases">'+netCard(medianLabel,result.medianCase)+
+    (result.cautiousCase?netCard(cautiousLabel,result.cautiousCase):'<div class="net-case net-unavailable"><span>Conservative sample case</span><strong>Not available</strong><small>Add 3–40 comparable sold prices to calculate it.</small></div>')+'</div>'+
+    '<div class="resale-metrics"><div><span>Total estimated acquisition cost</span><strong>'+money(result.landedUsd)+'</strong></div>'+
+    '<div><span>Break-even resale price</span><strong>'+money(result.breakEvenSaleUsd)+'</strong></div>'+
+    '<div><span>Maximum break-even buying price (USD)</span><strong>'+(noPurchase?'Not viable at this sale value':money(result.maxAffordableAskUsd))+'</strong></div></div>'+
+    '<p class="resale-caveat">'+notes+'</p>'+
+    '<p class="resale-caveat">FX buffer '+money(result.fxAllowanceUsd)+' is included. Maximum buy price uses the '+escapeHtml(result.basis)+'. Actual taxes, duties, repairs, authenticity, liquidity, platform rules and unentered costs can change the result. '+(fxReady?'FX: '+escapeHtml(fxDate)+'.':'FX feed unavailable; USD pricing only.')+'</p>'+
+    '</div>';
 }
+
 let liveSnapshotItems = [], liveSnapshotDate = null;
 function renderLiveSnapshots() {
  const wrap=$('#live-feed-wrap');
