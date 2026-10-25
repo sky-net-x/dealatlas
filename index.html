@@ -50,16 +50,38 @@
 <section class="trust-band"><div class="wrap trust-inner"><span>BUILT FOR CURIOUS BUYERS</span><span class="trust-separator"></span><span>WATCHES</span><span>CAMERAS</span><span>COLLECTIBLES</span><span>MORE TO COME</span></div></section>
 <section class="section discover" id="discover">
  <div class="wrap">
-  <div class="section-top"><div><span class="section-kicker">01 / THE EXPLORER</span><h2>Explore the price <i>landscape.</i></h2><p>Follow selected marketplace price signals, then explore real searches across countries.</p></div><div class="status-box"><span class="status-icon">i</span><div><strong>Research preview</strong><small>Tracked Discogs prices are current asking-price floors, not sales. Product comparison examples remain synthetic; verified bargain detection is not yet available.</small></div></div></div>
+  <div class="section-top"><div><span class="section-kicker">01 / THE EXPLORER</span><h2>Explore the price <i>landscape.</i></h2><p>Browse selected public seller listings, then explore searches across countries.</p></div><div class="status-box"><span class="status-icon">i</span><div><strong>Research preview</strong><small>Public marketplace listings are unverified seller claims and may include demos. Sample comparisons below are synthetic, not verified deals.</small></div></div></div>
   <div class="global-results" id="global-market-results" hidden>
     <div class="global-results-head"><div><span class="section-kicker">SEARCH CURRENT MARKETPLACES</span><h3>Real-world searches for <span id="global-product-name"></span></h3></div><button type="button" id="clear-global-search" aria-label="Clear search">Clear search ×</button></div>
     <div id="global-market-grid" class="global-market-grid"></div>
     <p class="global-search-note">Links open live searches on the original marketplaces. DealAtlas does not collect, verify or rank those results. “Sold results” are research starting points; final transaction amounts may differ from displayed prices.</p>
   </div>
-  <section class="source-signals" id="source-signals" aria-label="Automatically collected Discogs marketplace reference prices">
-    <div class="source-signals-heading"><div><span class="section-kicker">AUTOMATED MARKET SIGNALS · DISCOGS PILOT</span><h3>What are sellers asking right now?</h3><p>Selected vinyl releases, tracked through the official Discogs API. These are lowest listed asking prices, not completed sales, and exclude shipping, condition adjustments and taxes.</p></div><span id="signal-age" class="source-age" aria-live="polite">Loading source data…</span></div>
-    <div id="signal-cards" class="source-signal-grid"></div>
-    <p class="source-disclaimer">This application uses Discogs’ API but is not affiliated with, sponsored or endorsed by Discogs. ‘Discogs’ is a trademark of Zink Media, LLC. Data may change before you open the original marketplace.</p>
+  <section class="public-explorer" id="public-explorer" aria-label="Experimental public seller listing discovery">
+    <div class="explorer-header">
+      <div>
+        <span class="section-kicker">PUBLIC MARKETPLACE API · EXPERIMENTAL</span>
+        <h3>Browse seller listings, not guessed deals.</h3>
+        <p>Search individual public marketplace listings directly through the resell.store API. Prices, availability, descriptions, sellers, shipping and authenticity are <strong>not independently verified</strong>. This small marketplace may include demo or sample listings.</p>
+      </div>
+      <span class="explorer-live-label">Fetched on demand · No account</span>
+    </div>
+    <form id="public-market-form" class="explorer-form">
+      <label class="explorer-query-label">Product or keyword
+        <input id="public-market-query" type="search" maxlength="80" autocomplete="off" placeholder="Try Lamy 2000 or vintage books">
+      </label>
+      <label>Category
+        <select id="public-market-category">
+          <option value="All">All categories</option><option>Collectibles</option><option>Books</option>
+          <option>Bags</option><option>Home</option><option>Clothing</option><option>Shoes</option>
+          <option>Tech</option><option>Kids</option><option>Garden</option>
+        </select>
+      </label>
+      <button type="submit" id="public-market-submit">Find listings ↗</button>
+    </form>
+    <p id="public-market-status" class="explorer-status" aria-live="polite">Search live source listings, or browse the latest public posts.</p>
+    <div id="public-market-cards" class="explorer-grid"></div>
+    <button type="button" id="public-market-more" class="explorer-more" hidden>Show more listings ↓</button>
+    <p class="explorer-disclaimer">Source: <a href="https://docs.resell.store/api/marketplace" target="_blank" rel="noopener noreferrer">resell.store public marketplace API</a>. Listings are supplied by sellers, may be unavailable or examples, and are not proven bargains. DealAtlas does not estimate resale value from asking prices. Always verify the actual seller and listing at the source before buying.</p>
   </section>
   <div class="filters"><div class="category-buttons" id="category-buttons" role="group" aria-label="Filter category"><button class="category-btn active" data-category="All" aria-pressed="true">All categories</button><button class="category-btn" data-category="Watches" aria-pressed="false">Watches</button><button class="category-btn" data-category="Cameras" aria-pressed="false">Cameras</button><button class="category-btn" data-category="Collectibles" aria-pressed="false">Collectibles</button></div><label class="sort-label">Sort <select id="sort-by"><option value="gap">Largest sample gap</option><option value="name">Product name</option></select></label></div>
   <div class="live-feed" id="live-feed-wrap" hidden><div class="live-feed-head"><div><strong>Marketplace listing snapshots</strong><span id="live-feed-time">Source: authorized eBay Browse API</span></div><small>Actual listings · NOT verified bargains</small></div><div class="live-feed-grid" id="live-feed-cards"></div></div>
