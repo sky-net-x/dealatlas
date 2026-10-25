@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101829">
+<meta name="description" content="DealAtlas is a free, transparent international price comparison lab. Compare illustrative market scenarios, explore real marketplace search results and calculate your own landed costs.">
+<title>DealAtlas — Great deals don't stop at borders.</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="top-note"><span class="signal-dot"></span><strong>Early access research preview</strong><span> · Free to explore · No sign-up required</span></div>
+<header class="site-header">
+ <div class="wrap header-inner">
+ <a class="brand" href="#top" aria-label="DealAtlas home"><span class="brand-mark">✳</span><span>deal<span class="brand-light">atlas</span><sup>beta</sup></span></a>
+ <nav aria-label="Main navigation"><a href="#discover">Explore</a><a href="#compare">Compare a listing</a><a href="#method">How it works</a></nav>
+ <a class="header-cta" href="#compare">Try the calculator <span aria-hidden="true">↗</span></a>
+ </div>
+</header>
+<main id="top">
+<section class="hero">
+ <div class="wrap hero-layout">
+  <div class="hero-copy">
+   <span class="eyebrow"><span class="eyebrow-icon">◎</span> YOUR WINDOW INTO GLOBAL MARKETS</span>
+   <h1>Great deals don't<br>stop at <em>borders.</em></h1>
+   <p class="lead">One place to compare prices across countries, discover where to look, and understand the real cost before you buy.</p>
+   <form id="global-search" class="hero-search">
+    <label class="sr-only" for="main-search">Search a product</label>
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input id="main-search" name="query" autocomplete="off" placeholder="Try “Seiko SKX007” or “Nikon F3”…">
+    <button type="submit">Explore <span aria-hidden="true">→</span></button>
+   </form>
+   <div class="popular-row"><span>Try:</span><button class="text-chip" data-query="Seiko SKX007">Seiko SKX007</button><button class="text-chip" data-query="Sony A7 III">Sony A7 III</button><button class="text-chip" data-query="LEGO 10221">LEGO 10221</button></div>
+   <div class="hero-proof"><div><strong>5</strong><span>marketplaces</span></div><div><strong>Live</strong><span>daily exchange rates</span></div><div><strong>$0</strong><span>to get started</span></div></div>
+  </div>
+  <div class="hero-visual" aria-label="Illustrative marketplace comparison dashboard">
+   <div class="orb orb-one"></div><div class="orb orb-two"></div>
+   <div class="glass-panel">
+    <div class="panel-head"><div><span class="muted-label">MARKET SNAPSHOT</span><h2>One product. Five markets.</h2></div><span class="panel-globe" aria-hidden="true">◎</span></div>
+    <div class="product-preview"><span class="preview-icon">⌚</span><div><strong>Seiko SKX007</strong><small>Price comparison · illustration</small></div><span class="sample-tag">SAMPLE</span></div>
+    <div class="market-rows" id="hero-market-rows"><div class="loading-lines">Loading market example…</div></div>
+    <div class="panel-bottom"><span><span class="signal-dot"></span> <span id="fx-status">Connecting to daily FX feed</span></span><span class="panel-mini">Markets vary. Costs matter.</span></div>
+   </div>
+   <span class="float-card float-one">↗ <strong>Compare across borders</strong></span>
+   <span class="float-card float-two">✦ <strong>Spot the difference</strong></span>
+  </div>
+ </div>
+</section>
+<section class="trust-band"><div class="wrap trust-inner"><span>BUILT FOR CURIOUS BUYERS</span><span class="trust-separator"></span><span>WATCHES</span><span>CAMERAS</span><span>COLLECTIBLES</span><span>MORE TO COME</span></div></section>
+<section class="section discover" id="discover">
+ <div class="wrap">
+  <div class="section-top"><div><span class="section-kicker">01 / THE EXPLORER</span><h2>Explore the price <i>landscape.</i></h2><p>See how sample prices differ across markets, then jump directly to real marketplace searches.</p></div><div class="status-box"><span class="status-icon">i</span><div><strong>Illustrative comparisons</strong><small>These examples are synthetic, not live deals. Real listing feeds are not connected yet.</small></div></div></div>
+  <div class="filters"><div class="category-buttons" id="category-buttons" role="group" aria-label="Filter category"><button class="category-btn active" data-category="All" aria-pressed="true">All categories</button><button class="category-btn" data-category="Watches" aria-pressed="false">Watches</button><button class="category-btn" data-category="Cameras" aria-pressed="false">Cameras</button><button class="category-btn" data-category="Collectibles" aria-pressed="false">Collectibles</button></div><label class="sort-label">Sort <select id="sort-by"><option value="gap">Largest sample gap</option><option value="name">Product name</option></select></label></div>
+  <div class="live-feed" id="live-feed-wrap" hidden><div class="live-feed-head"><div><strong>Marketplace listing snapshots</strong><span id="live-feed-time">Source: authorized eBay Browse API</span></div><small>Actual listings · NOT verified bargains</small></div><div class="live-feed-grid" id="live-feed-cards"></div></div>
+  <div class="scenarios" id="scenario-cards" aria-live="polite"><p>Loading comparisons…</p></div>
+  <div class="search-all-banner"><div><strong>Looking for something else?</strong><span>Search across five international markets without leaving DealAtlas.</span></div><a class="outline-link" href="#compare">Open comparison tool <span aria-hidden="true">→</span></a></div>
+ </div>
+</section>
+<section class="section comparison" id="compare">
+ <div class="wrap comparison-grid">
+  <div class="compare-intro"><span class="section-kicker">02 / THE REAL-WORLD CHECK</span><h2>Run the numbers.<br><i>Not the hype.</i></h2><p>Found a listing on eBay, Mercari, or another marketplace? Enter its asking price and your own benchmark. We'll convert the currency and calculate your estimated price gap.</p>
+  <div class="feature-list"><div><span>✓</span> Currency conversion from published FX rates</div><div><span>✓</span> Shipping and extra costs included</div><div><span>✓</span> No accounts, uploads or payments</div></div>
+  <div class="compare-warning"><strong>Important</strong><p>A price gap is not a guaranteed profit. Authentication, condition, tax, resale fees and demand must still be verified.</p></div></div>
+  <div class="calculator-card">
+    <div class="calculator-heading"><span>YOUR LISTING</span><span class="local-badge">↗ PRIVATE · ON THIS DEVICE</span></div>
+    <form id="deal-form">
+      <label>What are you comparing?<input id="deal-query" placeholder="e.g. Omega Speedmaster 3510.50" required maxlength="160"></label>
+      <div class="form-two"><label>Asking price<input id="deal-price" type="number" min="0" step="any" inputmode="decimal" placeholder="850" required></label><label>Currency<select id="deal-currency"><option value="USD">USD — US dollar</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option><option value="JPY">JPY — Yen</option><option value="AUD">AUD — Australian dollar</option></select></label></div>
+      <div class="form-two"><label>Estimated market value (USD)<input id="deal-target" type="number" min="0.01" step="any" inputmode="decimal" placeholder="1200" required></label><label>Seller market<select id="deal-origin"><option value="US">United States</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="JP">Japan</option><option value="AU">Australia</option></select></label></div>
+      <div class="form-two"><label>Shipping (USD)<input id="deal-shipping" type="number" min="0" step="any" inputmode="decimal" value="0"></label><label>Other costs (USD)<input id="deal-costs" type="number" min="0" step="any" inputmode="decimal" value="0"></label></div>
+      <button class="calculate-button" type="submit">Calculate potential price gap <span aria-hidden="true">↗</span></button>
+    </form>
+    <div class="result-box" id="deal-result" aria-live="polite"><div class="result-placeholder">Enter a listing to see an estimated price gap.</div></div>
+    <div class="quick-links" id="quick-market-links"><span>SEARCH LIVE LISTINGS</span><div id="quick-market-link-items"></div></div>
+  </div>
+ </div>
+</section>
+<section class="section method" id="method"><div class="wrap"><div class="center-heading"><span class="section-kicker">03 / OUR APPROACH</span><h2>Less guesswork. <i>More clarity.</i></h2><p>The goal is to surface verifiable opportunities, not just suspiciously low prices.</p></div>
+<div class="method-cards"><article><span class="method-number">01</span><div class="method-icon">◎</div><h3>Search globally</h3><p>Open real marketplace searches in the US, Europe, Japan and Australia from one place.</p></article><article><span class="method-number">02</span><div class="method-icon">↔</div><h3>Compare in one currency</h3><p>Use daily reference FX rates to put prices on the same scale. Account for shipping and fees.</p></article><article><span class="method-number">03</span><div class="method-icon">✓</div><h3>Verify before you buy</h3><p>Check the actual item, condition, authenticity, sold comparables and cross-border costs.</p></article></div>
+</div></section>
+<section class="bottom-callout"><div class="wrap"><div><span class="section-kicker">AN OPEN RESEARCH PROJECT</span><h2>A smarter way to see the world of resale.</h2><p>DealAtlas is being built in public as a free research preview. Automated listing discovery will only appear after reliable, permitted data access is connected.</p></div><a href="#discover">Explore the preview <span aria-hidden="true">↑</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><div class="brand"><span class="brand-mark">✳</span><span>deal<span class="brand-light">atlas</span></span></div><p>Independent research preview. Not affiliated with eBay, Mercari or listed marketplaces. Example prices are synthetic.</p><div><a href="#method">Methodology</a><a href="#compare">Calculator</a></div></div></footer>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
