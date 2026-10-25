@@ -57,13 +57,19 @@ try{
   let marketLoaded=false;
   for(let t=0;t<55;t++){
     await new Promise(r=>setTimeout(r,300));
-    marketLoaded=await evalJs("document.querySelectorAll('.source-signal-card').length === 6");
+    marketLoaded=await evalJs("document.querySelectorAll('.public-listing-card').length > 0");
     if(marketLoaded)break;
   }
-  assert.equal(marketLoaded,true,'six current official Discogs asking-price signals displayed');
-  const disclaimers=await evalJs("({links:document.querySelectorAll('.source-signal-card a').length,disclaimer:document.querySelector('.source-disclaimer').textContent})");
-  assert.equal(disclaimers.links,6);
-  assert.match(disclaimers.disclaimer,/not affiliated with, sponsored or endorsed by Discogs/);
+  assert.equal(marketLoaded,true,'public API seller listings displayed');
+  const exploratory=await evalJs("({count:document.querySelectorAll('.public-listing-card').length,external:document.querySelector('.public-listing-card a').href,warning:document.querySelector('.explorer-disclaimer').textContent})");
+  assert.ok(exploratory.count<=12);
+  assert.ok(exploratory.external.startsWith('https://') && exploratory.external.includes('.resell.store/'));
+  assert.match(exploratory.warning,/may be unavailable or examples/);
+  await evalJs("document.getElementById('sold-comps').value='100 USD';document.getElementById('deal-target').value='1000';document.querySelector('.compare-public-listing').click()");
+  const prefilled=await evalJs("({price:document.getElementById('deal-price').value,resale:document.getElementById('deal-target').value,comps:document.getElementById('sold-comps').value})");
+  assert.ok(Number(prefilled.price)>0);
+  assert.equal(prefilled.resale,'');
+  assert.equal(prefilled.comps,'');
   await evalJs(`(()=>{
     const set=(id,value)=>document.getElementById(id).value=value;
     set('deal-query','Smoke-test camera');
