@@ -27,10 +27,10 @@
 - data/live-listings.json remains empty; no authorized real listings were collected.
 - No sold-price examples were automatically obtained or authenticated. The lower quartile is descriptive only, not an uncertainty/confidence interval.
 - No fees, VAT, duties, authenticity, liability or future resale price are verified; user must input relevant assumptions.
-- Local modifications not automatically deployed: the project folder has **no .git directory**, and public GitHub Pages needs syncing by an authorized mechanism.
+- Published via the authenticated GitHub browser to the main branch on 2026-10-25. Production site smoke test passed after deployment. The local project folder has **no .git directory**; future updates need an authorized GitHub sync.
 - Do not represent this phase as a functioning automated deal finder.
 
 ## Next priority
-- Publish locally tested changes to sky-net-x/dealatlas via authorized GitHub connection.
+- Maintain the published calculator with real-world feedback while developing independent, provenance-backed data ingestion.
 - Develop provenance-backed independent sold-price ingestion as permitted sources become available.
 - eBay listing collector is staged but must stay disabled until eBay authorizes the API account.

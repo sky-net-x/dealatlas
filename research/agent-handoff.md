@@ -8,11 +8,11 @@ Project roots:
 - Published: https://sky-net-x.github.io/dealatlas/
 
 Existing Teaching MCP on Docker:
-- workspace_list recognizes default (Education), prefab, converters, but not yet direct DealAtlas mount.
+- workspace_list now recognizes FOUR direct mounted workspaces: default (Education), prefab, converters, and dealatlas (/dealatlas). All direct file and command tools work; Chromium's stale profile locks were cleared 2026-10-25.
 - Windows Chrome is connected via the Teaching MCP browser automation in Education/Browser-Automation/windows-browser.js.
 - A browser window's file:// URL can read the Windows DealAtlas project; Chrome CDP may save files to an arbitrary dedicated destination using Browser.setDownloadBehavior. Avoid duplicating authoritative project materials under Education.
-- Future agents should add a direct Docker bind mount and workspace configuration if practical, with care not to disrupt existing three project mappings.
+- The direct Docker bind mount and named workspace configuration are installed and verified. Do not recreate the container unnecessarily or remove existing projects.
 
-Current site: zero-dependency static HTML/CSS/JS + synthetic sample scenarios, real daily FX, marketplace search links, user-entered valuation calculator. Live-listings.json is empty. Optional server-side official eBay script is included but deliberately inactive until developer account approval.
+Current site: free static HTML/CSS/JS with synthetic examples, real daily FX, international outbound searches, plus a resale scenario evaluator with user-entered sold comps and costs. Phase 3 published to GitHub Pages and browser-tested 2026-10-25. Live-listings.json is still empty. Official eBay integration remains inactive pending Developer review.
 
 Trust: Never invent current bargains, sold prices or authenticity. Do not use rotating proxies to circumvent platform controls. Do not request passwords in chat. Project repo is public.
