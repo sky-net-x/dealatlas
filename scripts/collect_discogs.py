@@ -116,6 +116,10 @@ def save_snapshot(snapshot, target=OUTPUT):
 
 
 def main():
+    # Restricted marketplace pricing is disabled until explicit commercial/public-display permission.
+    if os.environ.get('DISCOGS_MARKETPLACE_PERMISSION_APPROVED') != 'true':
+        print('Discogs marketplace-price collection DISABLED pending written rights review.')
+        return 2
     snapshot = build_snapshot()
     save_snapshot(snapshot)
     print(f"Collected {len(snapshot['items'])} current asking-price signals. Expires at {snapshot['expiresAt']}.")
