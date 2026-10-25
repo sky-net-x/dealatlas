@@ -1,32 +1,13 @@
-name: Refresh public market signals
+# Discogs marketplace-price aggregation retired pending explicit rights review.
+# No scheduled jobs or permissions; API marketplace data may be Restricted Data.
+name: Archived market-price collector
 on:
   workflow_dispatch:
-  schedule:
-    # Refresh within Discogs' 6-hour display freshness window.
-    - cron: '13 */3 * * *'
 permissions:
-  contents: write
-concurrency:
-  group: public-market-signal-refresh
-  cancel-in-progress: false
+  contents: read
 jobs:
-  refresh:
+  archived:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Fetch official public Discogs asking-price floors
-        run: python scripts/collect_discogs.py
-      - name: Check source snapshot integrity
-        run: |
-          python -m unittest discover -s tests -p 'test_*.py'
-          node --test tests/logic.test.mjs tests/valuation.test.mjs tests/source-signals.test.mjs
-      - name: Publish only refreshed public snapshot
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/market-signals.json
-          git diff --cached --quiet || (git commit -m "Refresh Discogs current asking-price signals" && git push)
+      - run: echo "Marketplace pricing integration disabled pending source permission."
