@@ -1,0 +1,27 @@
+name: Refresh approved eBay listings
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 7 * * *'
+permissions:
+  contents: write
+jobs:
+  refresh:
+    if: ${{ vars.ENABLE_EBAY_FEED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch authorized eBay Browse API data
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+        run: python scripts/fetch_ebay.py
+      - name: Commit changed snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live-listings.json
+          git diff --cached --quiet || (git commit -m "Update authorized eBay snapshot" && git push)
