@@ -1,6 +1,6 @@
 # DealAtlas — international price exploration
 
-**Status (25 Oct 2026): free research preview.** DealAtlas has real outbound marketplace search links, live daily FX conversion via Frankfurter, a resale scenario evaluator with user-entered sold-price samples, and **clearly marked synthetic comparisons**. The valuation additions are currently in the local MCP workspace and require a GitHub sync to appear on the public site.
+**Status (25 Oct 2026): free research preview.** DealAtlas has real outbound marketplace search links, live daily FX conversion via Frankfurter, a resale scenario evaluator with user-entered sold-price samples, and **clearly marked synthetic comparisons**. The valuation additions were published to GitHub Pages and successfully smoke-tested in a real browser on 25 Oct 2026.
 
 This is **not** a live bargain finder yet. No sold-price history or automated claims about profits are provided.
 
