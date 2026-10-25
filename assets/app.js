@@ -1,5 +1,6 @@
 import {toUSD, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
 import {describeSoldSample, evaluateResaleCase} from './valuation.mjs';
+import {parseSignalSnapshot} from './source-signals.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -78,7 +79,7 @@ function renderScenarios() {
     btn.textContent=open?'Hide markets':'Compare all 5';
   }));
 }
-function updateUI(){renderHero();renderScenarios();renderGlobalMarketSearch();updateQuickLinks($('#deal-query').value||currentSearch);}
+function updateUI(){renderHero();renderScenarios();renderGlobalMarketSearch();renderMarketSignals();updateQuickLinks($('#deal-query').value||currentSearch);}
 
 async function loadSampleData(){
  const response=await fetch('data/demo-scenarios.json',{cache:'no-store'});
@@ -151,6 +152,41 @@ function showResult(){
     '</div>';
 }
 
+let marketSignalSnapshot = null;
+function renderMarketSignals(){
+  const cards=$('#signal-cards'), age=$('#signal-age');
+  const result=parseSignalSnapshot(marketSignalSnapshot);
+  if(result.error){
+    age.textContent='No current snapshot';
+    cards.innerHTML='<p class="source-unavailable">'+escapeHtml(result.error)+' Refreshed data will appear here once the automatic source update succeeds.</p>';
+    return;
+  }
+  age.textContent='Last checked '+new Date(result.fetchedAt).toLocaleString()+' · Expires automatically';
+  const q=currentSearch.trim().toLowerCase();
+  const selected=result.items.filter(x=>!q||((x.title||'')+' '+(x.artist||'')).toLowerCase().includes(q));
+  cards.innerHTML=selected.length ? selected.map(x=>'<article class="source-signal-card">'+
+    '<div class="signal-type">VINYL · ASKING-PRICE FLOOR</div>'+
+    '<h4>'+escapeHtml(x.artist ? x.artist+' — '+x.title : x.title)+'</h4>'+
+    '<p>Release ID '+escapeHtml(x.id)+(x.year?' · '+escapeHtml(x.year):'')+'</p>'+
+    '<div class="signal-price">'+escapeHtml(shortMoney(x.lowestAsk,'USD'))+'</div>'+
+    '<p class="signal-count">'+escapeHtml(x.listingsCount)+' current listings reported · price is lowest ask, not resale value</p>'+
+    '<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener">Data provided by Discogs. ↗</a>'+
+    '</article>').join('') :
+    '<p class="source-unavailable">None of the currently tracked vinyl releases match your search. The five marketplace search links above still work for other products.</p>';
+}
+async function loadMarketSignals(){
+  try{
+    const response=await fetch('data/market-signals.json',{cache:'no-store'});
+    if(!response.ok)throw new Error('No market snapshot available');
+    marketSignalSnapshot=await response.json();
+  }catch(error){
+    marketSignalSnapshot=null;
+    console.warn('Market reference snapshot unavailable:',error.message);
+  }
+  renderMarketSignals();
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderMarketSignals()});
+
 let liveSnapshotItems = [], liveSnapshotDate = null;
 function renderLiveSnapshots() {
  const wrap=$('#live-feed-wrap');
@@ -191,7 +227,7 @@ function wireEvents(){
   currentSearch=$('#main-search').value.trim();
   $('#deal-query').value=currentSearch;
   updateQuickLinks(currentSearch);
-  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
+  renderScenarios();renderLiveSnapshots();renderMarketSignals();renderGlobalMarketSearch();
   document.querySelector('#discover').scrollIntoView({behavior:'smooth'});
  });
  $$('.text-chip').forEach(btn=>btn.addEventListener('click',()=>{
@@ -201,7 +237,7 @@ function wireEvents(){
  $('#clear-global-search').addEventListener('click',()=>{
   currentSearch='';
   $('#main-search').value='';
-  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
+  renderScenarios();renderLiveSnapshots();renderMarketSignals();renderGlobalMarketSearch();
  });
  $('#estimate-value-btn').addEventListener('click',()=>{
   const feedback=$('#comps-feedback');
@@ -225,4 +261,5 @@ function wireEvents(){
 wireEvents();
 try{await loadSampleData()}catch(error){$('#scenario-cards').innerHTML='<div class="no-data">The sample dataset could not load. Serve this site via HTTP or GitHub Pages, not by opening index.html directly as a file.</div>';console.error(error)}
 await loadFX();
+await loadMarketSignals();
 await loadLiveSnapshots();

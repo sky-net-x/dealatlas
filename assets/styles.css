@@ -75,3 +75,23 @@
 .resale-metrics strong{font-size:12px;color:#293e37;text-align:right;line-height:1.5}
 .resale-caveat{font-size:10px;line-height:1.75;color:#60736c}
 @media(max-width:520px){.net-cases{grid-template-columns:1fr}.net-case strong{font-size:21px}.resale-costs-panel .form-two{grid-template-columns:1fr 1fr}}
+
+
+/* Verified-origin automated market reference signals. Never promoted as resale deals. */
+.source-signals{margin:30px 0 27px;background:#f3f8f5;border:1px solid #cde2d6;border-radius:17px;padding:24px}
+.source-signals-heading{display:flex;align-items:start;justify-content:space-between;gap:22px;margin-bottom:18px}
+.source-signals-heading h3{font-size:21px;letter-spacing:-.045em;margin:9px 0}
+.source-signals-heading p{font-size:11px;line-height:1.7;color:#607b6d;max-width:650px}
+.source-age{font-size:10px;color:#4e7465;min-width:145px;text-align:right;font-weight:700;line-height:1.6}
+.source-signal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.source-signal-card{background:#fff;border:1px solid #dce9e0;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.source-signal-card .signal-type{font-size:9px;letter-spacing:.11em;font-weight:800;color:#3c8468}
+.source-signal-card h4{font:800 13px var(--display);line-height:1.55;color:#2d4539}
+.source-signal-card p{font-size:10px;line-height:1.6;color:#6e8076}
+.source-signal-card .signal-price{font:800 22px var(--display);color:#214935}
+.source-signal-card .signal-count{min-height:30px}
+.source-signal-card a{font-size:10px;font-weight:800;color:#386d50;text-decoration:underline;margin-top:auto;padding-top:4px}
+.source-disclaimer{font-size:10px;line-height:1.75;color:#60756a;margin-top:16px}
+.source-unavailable{font-size:12px;color:#62776c;line-height:1.7;grid-column:1/-1;padding:13px 0}
+@media(max-width:760px){.source-signal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.source-signals-heading{flex-direction:column}.source-age{text-align:left}}
+@media(max-width:520px){.source-signals{padding:18px 16px}.source-signal-grid{grid-template-columns:1fr}}
