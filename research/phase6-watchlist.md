@@ -28,4 +28,4 @@
 - 33 Node tests including 7 dedicated watchlist tests passed.
 - 3 Python tests passed.
 - Local browser full flow: save Lamy 2000 / Collectibles / $180; check source; see candidate asking $150; reload persists criteria without old result; remove watch; no horizontal mobile overflow.
-- Publish to GitHub main and verify public Pages behavior separately.
+- Published to GitHub main. Verified public GitHub Pages in Chrome: Lamy 2000 watch at $180, fetched $150 seller ask, 5 international marketplace links, persisted across reload, deletion worked, 390px layout had no horizontal overflow, zero page JS errors. 33 Node tests, 3 Python tests and both browser smoke tests passed.
