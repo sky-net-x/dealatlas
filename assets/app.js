@@ -1,6 +1,6 @@
 import {toUSD, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
 import {describeSoldSample, evaluateResaleCase} from './valuation.mjs';
-import {parseSignalSnapshot} from './source-signals.mjs';
+import {buildListingSearchUrl,normalizePublicSearch} from './public-listings.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -79,7 +79,7 @@ function renderScenarios() {
     btn.textContent=open?'Hide markets':'Compare all 5';
   }));
 }
-function updateUI(){renderHero();renderScenarios();renderGlobalMarketSearch();renderMarketSignals();updateQuickLinks($('#deal-query').value||currentSearch);}
+function updateUI(){renderHero();renderScenarios();renderGlobalMarketSearch();updateQuickLinks($('#deal-query').value||currentSearch);}
 
 async function loadSampleData(){
  const response=await fetch('data/demo-scenarios.json',{cache:'no-store'});
@@ -152,40 +152,83 @@ function showResult(){
     '</div>';
 }
 
-let marketSignalSnapshot = null;
-function renderMarketSignals(){
-  const cards=$('#signal-cards'), age=$('#signal-age');
-  const result=parseSignalSnapshot(marketSignalSnapshot);
-  if(result.error){
-    age.textContent='No current snapshot';
-    cards.innerHTML='<p class="source-unavailable">'+escapeHtml(result.error)+' Refreshed data will appear here once the automatic source update succeeds.</p>';
-    return;
-  }
-  age.textContent='Last checked '+new Date(result.fetchedAt).toLocaleString()+' · Expires automatically';
-  const q=currentSearch.trim().toLowerCase();
-  const selected=result.items.filter(x=>!q||((x.title||'')+' '+(x.artist||'')).toLowerCase().includes(q));
-  cards.innerHTML=selected.length ? selected.map(x=>'<article class="source-signal-card">'+
-    '<div class="signal-type">VINYL · ASKING-PRICE FLOOR</div>'+
-    '<h4>'+escapeHtml(x.artist ? x.artist+' — '+x.title : x.title)+'</h4>'+
-    '<p>Release ID '+escapeHtml(x.id)+(x.year?' · '+escapeHtml(x.year):'')+'</p>'+
-    '<div class="signal-price">'+escapeHtml(shortMoney(x.lowestAsk,'USD'))+'</div>'+
-    '<p class="signal-count">'+escapeHtml(x.listingsCount)+' current listings reported · price is lowest ask, not resale value</p>'+
-    '<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener">Data provided by Discogs. ↗</a>'+
-    '</article>').join('') :
-    '<p class="source-unavailable">None of the currently tracked vinyl releases match your search. The five marketplace search links above still work for other products.</p>';
+let publicSearchController=null, publicSearchToken=0, publicSearchOffset=0;
+let publicVisibleListings=new Map(), publicShownCount=0, publicHasMore=false;
+let publicSourceTotal=0;
+
+function renderPublicListing(x){
+  const shipping=x.shippingUsd!==null && x.shippingUsd>0
+    ? 'Listed shipping: '+escapeHtml(shortMoney(x.shippingUsd))
+    : (x.shippingUsd===0 ? 'Shipping listed as $0 (may mean pickup only)' : 'Shipping not stated');
+  return '<article class="public-listing-card">'+
+    '<span class="public-listing-type">'+escapeHtml(x.category)+' · SELLER ASK</span>'+
+    '<h4>'+escapeHtml(x.title)+'</h4>'+
+    '<p class="public-listing-seller">Store: '+escapeHtml(x.seller)+'</p>'+
+    '<div class="public-listing-price">'+escapeHtml(shortMoney(x.priceUsd,'USD'))+'</div>'+
+    '<p class="public-listing-shipping">'+shipping+'</p>'+
+    '<p class="public-listing-warning">Seller, condition, stock and price unverified.</p>'+
+    '<div class="public-listing-actions"><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(x.url)+'">Verify at source ↗</a>'+
+    '<button type="button" class="compare-public-listing" data-id="'+escapeHtml(x.id)+'">Check costs →</button></div></article>';
 }
-async function loadMarketSignals(){
-  try{
-    const response=await fetch('data/market-signals.json',{cache:'no-store'});
-    if(!response.ok)throw new Error('No market snapshot available');
-    marketSignalSnapshot=await response.json();
-  }catch(error){
-    marketSignalSnapshot=null;
-    console.warn('Market reference snapshot unavailable:',error.message);
+async function fetchPublicListings({append=false}={}){
+  const query=$('#public-market-query').value.trim();
+  const category=$('#public-market-category').value;
+  const cards=$('#public-market-cards'), status=$('#public-market-status'), more=$('#public-market-more');
+  const token=++publicSearchToken;
+  if(publicSearchController)publicSearchController.abort();
+  const controller=new AbortController();
+  publicSearchController=controller;
+  const timeout=setTimeout(()=>controller.abort(),13000);
+  $('#public-market-submit').disabled=true;
+  more.hidden=true;
+  status.textContent='Checking the public marketplace API…';
+  if(!append){publicSearchOffset=0;publicShownCount=0;publicVisibleListings.clear();cards.innerHTML='';}
+  try {
+    const u=buildListingSearchUrl({query,category,offset:publicSearchOffset,limit:12});
+    const response=await fetch(u,{signal:controller.signal,cache:'no-store'});
+    if(!response.ok)throw Error('HTTP '+response.status);
+    const payload=await response.json();
+    const result=normalizePublicSearch(payload,{limit:12,offset:publicSearchOffset});
+    if(token!==publicSearchToken)return;
+    publicSearchOffset=result.nextOffset;
+    publicSourceTotal=result.total;
+    publicHasMore=result.hasMore;
+    let added=0;
+    for(const item of result.listings){
+      if(publicVisibleListings.has(item.id))continue;
+      publicVisibleListings.set(item.id,item);
+      cards.insertAdjacentHTML('beforeend',renderPublicListing(item));
+      added++;
+    }
+    publicShownCount+=added;
+    status.textContent=publicShownCount+' public seller listing'+(publicShownCount===1?'':'s')+
+      ' shown · '+publicSourceTotal+' total reported by source · Seller claims not independently verified.';
+    if(!publicShownCount)cards.innerHTML='<p class="explorer-unavailable">No verified-format public offers were returned for this search. Try another keyword, a category, or the other marketplace search links.</p>';
+    more.hidden=!publicHasMore;
+  } catch(error){
+    if(token!==publicSearchToken)return;
+    if(!append)cards.innerHTML='<p class="explorer-unavailable">This public marketplace could not be reached. Use the original marketplace links above, or try again later.</p>';
+    status.textContent='Source currently unavailable; no listings have been fabricated.';
+    more.hidden=true;
+  } finally{
+    clearTimeout(timeout);
+    if(token===publicSearchToken)$('#public-market-submit').disabled=false;
   }
-  renderMarketSignals();
 }
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderMarketSignals()});
+function prefillPublicListing(id){
+  const item=publicVisibleListings.get(id);
+  if(!item)return;
+  $('#deal-query').value=item.title.slice(0,160);
+  $('#deal-price').value=item.priceUsd.toFixed(2);
+  $('#deal-currency').value='USD';
+  $('#deal-shipping').value=item.pickupOrUnknown ? '' : item.shippingUsd.toFixed(2);
+  // Do not let a prior product's assumed resale price or comparables contaminate this item.
+  $('#deal-target').value='';
+  $('#sold-comps').value='';
+  $('#comps-feedback').textContent='';
+  $('#deal-result').textContent='Seller asking price copied from a public listing, not verified. Add your shipping, fees and an independently supported resale benchmark before evaluating.';
+  $('#compare').scrollIntoView({behavior:'smooth'});
+}
 
 let liveSnapshotItems = [], liveSnapshotDate = null;
 function renderLiveSnapshots() {
@@ -216,6 +259,12 @@ async function loadLiveSnapshots(){
 }
 
 function wireEvents(){
+ $('#public-market-form').addEventListener('submit',e=>{e.preventDefault();fetchPublicListings()});
+ $('#public-market-more').addEventListener('click',()=>fetchPublicListings({append:true}));
+ $('#public-market-cards').addEventListener('click',e=>{
+   const button=e.target.closest('.compare-public-listing');
+   if(button)prefillPublicListing(button.dataset.id);
+ });
  $$('#category-buttons button').forEach(btn=>btn.addEventListener('click',()=>{
   currentCategory=btn.dataset.category;
   $$('#category-buttons button').forEach(b=>{b.classList.toggle('active',b===btn);b.setAttribute('aria-pressed',String(b===btn))});
@@ -227,7 +276,9 @@ function wireEvents(){
   currentSearch=$('#main-search').value.trim();
   $('#deal-query').value=currentSearch;
   updateQuickLinks(currentSearch);
-  renderScenarios();renderLiveSnapshots();renderMarketSignals();renderGlobalMarketSearch();
+  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
+  $('#public-market-query').value=currentSearch;
+  fetchPublicListings();
   document.querySelector('#discover').scrollIntoView({behavior:'smooth'});
  });
  $$('.text-chip').forEach(btn=>btn.addEventListener('click',()=>{
@@ -237,7 +288,7 @@ function wireEvents(){
  $('#clear-global-search').addEventListener('click',()=>{
   currentSearch='';
   $('#main-search').value='';
-  renderScenarios();renderLiveSnapshots();renderMarketSignals();renderGlobalMarketSearch();
+  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
  });
  $('#estimate-value-btn').addEventListener('click',()=>{
   const feedback=$('#comps-feedback');
@@ -261,5 +312,5 @@ function wireEvents(){
 wireEvents();
 try{await loadSampleData()}catch(error){$('#scenario-cards').innerHTML='<div class="no-data">The sample dataset could not load. Serve this site via HTTP or GitHub Pages, not by opening index.html directly as a file.</div>';console.error(error)}
 await loadFX();
-await loadMarketSignals();
+await fetchPublicListings();
 await loadLiveSnapshots();
