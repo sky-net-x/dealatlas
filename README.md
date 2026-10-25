@@ -1,6 +1,6 @@
 # DealAtlas — international price exploration
 
-**Status (25 Oct 2026): free research preview.** DealAtlas is a responsive static site with real outbound marketplace search links, live daily FX conversion via Frankfurter, a price-gap calculator, and **clearly marked synthetic comparisons**.
+**Status (25 Oct 2026): free research preview.** DealAtlas has real outbound marketplace search links, live daily FX conversion via Frankfurter, a resale scenario evaluator with user-entered sold-price samples, and **clearly marked synthetic comparisons**. The valuation additions are currently in the local MCP workspace and require a GitHub sync to appear on the public site.
 
 This is **not** a live bargain finder yet. No sold-price history or automated claims about profits are provided.
 
@@ -12,13 +12,16 @@ This is **not** a live bargain finder yet. No sold-price history or automated cl
 - scripts/ — optional official eBay Browse API fetcher
 - .github/workflows/ — optional refresh job, disabled by default
 - research/ — project decisions, sources and next steps
-- tests/ — Node built-in tests
+- tests/ — Node built-in tests and a CDP browser smoke test
+- assets/valuation.mjs — resale scenario calculations, lower-quartile sensitivity, break-even price
 
 ## Local run, no installation required
 Run: python -m http.server 8000
 Open http://localhost:8000 (file:// loads may block JSON).
 
-Run tests: node --test tests/logic.test.mjs
+Run tests: `node --test tests/logic.test.mjs tests/valuation.test.mjs`
+
+Optional browser test, only with an existing local Chromium CDP endpoint on port 9222: `node tests/browser-smoke.mjs`. It uses a temporary tab and does not create a second Chromium profile.
 
 ## Publish for $0
 1. Create a public GitHub repository (dealatlas).

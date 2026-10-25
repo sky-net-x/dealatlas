@@ -72,11 +72,11 @@
     <form id="deal-form">
       <label>What are you comparing?<input id="deal-query" placeholder="e.g. Omega Speedmaster 3510.50" required maxlength="160"></label>
       <div class="form-two"><label>Asking price<input id="deal-price" type="number" min="0" step="any" inputmode="decimal" placeholder="850" required></label><label>Currency<select id="deal-currency"><option value="USD">USD — US dollar</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option><option value="JPY">JPY — Yen</option><option value="AUD">AUD — Australian dollar</option></select></label></div>
-      <div class="form-two"><label>Estimated market value (USD)<input id="deal-target" type="number" min="0.01" step="any" inputmode="decimal" placeholder="1200" required></label><label>Seller market<select id="deal-origin"><option value="US">United States</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="JP">Japan</option><option value="AU">Australia</option></select></label></div>
+      <div class="form-two"><label>Expected resale value (USD)<input id="deal-target" type="number" min="0.01" step="any" inputmode="decimal" placeholder="1200"></label><label>Seller market<select id="deal-origin"><option value="US">United States</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="JP">Japan</option><option value="AU">Australia</option></select></label></div>
       <details class="sold-comps-panel" id="sold-comps-panel">
         <summary>Have sold comparables? <span>Calculate a benchmark from real sales</span></summary>
         <div class="comps-content">
-          <p>Paste at least 3 prices from genuinely sold, similarly conditioned items, one per line, with the currency. Example: <strong>850 USD</strong>. These prices are provided by you, not verified by DealAtlas.</p>
+          <p>Enter 3–40 prices from genuinely sold, comparable items, one per line with currency, e.g. <strong>850 USD</strong>. When provided, these replace the manual resale value with the sample median. DealAtlas cannot verify these sales.</p>
           <label for="sold-comps">Sold prices (one per line)</label>
           <textarea id="sold-comps" rows="5" placeholder="850 USD&#10;790 EUR&#10;132,000 JPY"></textarea>
           <button type="button" id="estimate-value-btn" class="estimate-value-btn">Use median as market benchmark ↗</button>
@@ -85,7 +85,13 @@
         </div>
       </details>
       <div class="form-two"><label>Shipping (USD)<input id="deal-shipping" type="number" min="0" step="any" inputmode="decimal" value="0"></label><label>Other costs (USD)<input id="deal-costs" type="number" min="0" step="any" inputmode="decimal" value="0"></label></div>
-      <button class="calculate-button" type="submit">Calculate potential price gap <span aria-hidden="true">↗</span></button>
+      <details class="sold-comps-panel resale-costs-panel" open><summary>Resale assumptions <span>Include selling fees and risk</span></summary><div class="comps-content">
+        <p>These are adjustable scenario inputs, <strong>not actual marketplace fee quotes.</strong> Check fees and taxes for your destination. A 12% fee and 2% FX buffer are example assumptions only.</p>
+        <div class="form-two"><label>Selling fee (%)<input id="deal-fee-rate" type="number" min="0" max="99.99" step="any" value="12" inputmode="decimal"></label><label>Fixed selling fee (USD)<input id="deal-fixed-fee" type="number" min="0" step="any" value="0" inputmode="decimal"></label></div>
+        <div class="form-two"><label>Risk / returns reserve (USD)<input id="deal-reserve" type="number" min="0" step="any" value="0" inputmode="decimal"></label><label>FX buffer on ask (%)<input id="deal-fx-buffer" type="number" min="0" max="100" step="any" value="2" inputmode="decimal"></label></div>
+        <small>Include duties, VAT, repairs, payment charges and other expenses under “Other costs” as applicable. Any unentered costs make the result optimistic.</small>
+      </div></details>
+      <button class="calculate-button" type="submit">Evaluate resale scenario <span aria-hidden="true">↗</span></button>
     </form>
     <div class="result-box" id="deal-result" aria-live="polite"><div class="result-placeholder">Enter a listing to see an estimated price gap.</div></div>
     <div class="quick-links" id="quick-market-links"><span>SEARCH LIVE LISTINGS</span><div id="quick-market-link-items"></div></div>
