@@ -9,6 +9,7 @@ Repo: https://github.com/sky-net-x/dealatlas
 
 - Search links to major international marketplaces (eBay US/DE/GB/AU and Mercari Japan). These open third-party searches; results are not imported.
 - A **public marketplace explorer pilot** calling resell.store's documented, no-key, read-only search API directly from the user's browser. This displays individual seller claims (title, ask, shipping if available) with links back to the seller. It may include demonstration/seeded listings. Neither seller identity, stock, authenticity nor prices have been independently verified.
+- **Private price watches (local-only):** save up to six search phrases, category and maximum seller asking price in browser storage. Check them manually on demand against the first 20 listings sorted by asking price, view up to five candidates under budget, and jump to the five outbound international marketplace searches. No accounts, cloud syncing, scheduled checks, emails or push notifications. Budget excludes shipping, import taxes, duties and platform fees.
 - One-click copy of a publicly posted asking price into the resale scenario evaluator. Expected resale value and sold-price evidence **must not** be inferred from that asking price.
 - Calculator with actual daily reference FX rates, user-entered actual sold comparables, resale fees, shipping, duties, expenses, return reserve and conservative scenario.
 - Clear synthetic labels on the six design/demo comparison scenarios.
@@ -27,6 +28,7 @@ Repo: https://github.com/sky-net-x/dealatlas
 - `index.html` — responsive website
 - `assets/app.js` — browser UI, live source calls, product prefill
 - `assets/public-listings.mjs` — validated public marketplace adapter (URL and schema checks)
+- `assets/watchlist.mjs` — safe on-device watch storage, input bounds and under-budget candidate selection
 - `assets/logic.mjs`, `assets/valuation.mjs` — currencies, sold samples and resale calculations
 - `data/demo-scenarios.json` — **synthetic examples**, not actual seller prices
 - `data/live-listings.json` — empty approved-eBay placeholder
@@ -41,12 +43,12 @@ Repo: https://github.com/sky-net-x/dealatlas
 Serve the site over HTTP: `python -m http.server 8000`
 
 Run Node checks:
-`node --test tests/logic.test.mjs tests/valuation.test.mjs tests/public-listings.test.mjs tests/source-signals.test.mjs`
+`node --test tests/logic.test.mjs tests/valuation.test.mjs tests/public-listings.test.mjs tests/watchlist.test.mjs tests/source-signals.test.mjs`
 
 Run Python checks:
 `python -m unittest discover -s tests -p 'test_*.py'`
 
 Optional real Chromium smoke test, only if existing CDP is available on localhost port 9222:
-`node tests/browser-smoke.mjs`
+`node tests/browser-smoke.mjs` and `node tests/watchlist-browser.mjs`
 
 **Next**: obtain permitted, verifiable completed-sale data (currently missing), broaden reliable inventory integrations, then calculate opportunity scores only when product identity, condition, total purchase cost and source sales evidence can be established.

@@ -83,6 +83,20 @@
     <button type="button" id="public-market-more" class="explorer-more" hidden>Show more listings ↓</button>
     <p class="explorer-disclaimer">Source: <a href="https://docs.resell.store/api/marketplace" target="_blank" rel="noopener noreferrer">resell.store public marketplace API</a>. Listings are supplied by sellers, may be unavailable or examples, and are not proven bargains. DealAtlas does not estimate resale value from asking prices. Always verify the actual seller and listing at the source before buying.</p>
   </section>
+  <section class="watchlist-section" id="watchlist" aria-label="Private product price watches">
+    <div class="watchlist-heading">
+      <div><span class="section-kicker">PRIVATE PRICE WATCHES · ON THIS BROWSER</span><h3>Save what you're looking for.</h3><p>Track up to six product searches and a maximum seller asking price in USD. Your searches stay in this browser. Click “Check watches” to check the experimental marketplace; <strong>there are no automatic alerts or background checks.</strong></p></div>
+      <button id="watch-check-all" type="button" class="watch-check-all">Check watches ↻</button>
+    </div>
+    <form class="watch-form" id="watch-form">
+      <label>Product or keyword<input id="watch-query" type="search" minlength="2" maxlength="80" placeholder="e.g. Lamy 2000" required></label>
+      <label>Category<select id="watch-category"><option value="All">All categories</option><option>Collectibles</option><option>Books</option><option>Bags</option><option>Home</option><option>Clothing</option><option>Shoes</option><option>Tech</option><option>Kids</option><option>Garden</option></select></label>
+      <label>Maximum asking price (USD)<input id="watch-budget" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="150" required></label>
+      <button type="submit" id="watch-save">Save watch +</button>
+    </form>
+    <p id="watch-notice" class="watch-notice" role="status" aria-live="polite">Saved only on your device. The maximum price excludes shipping and taxes.</p>
+    <div class="watch-grid" id="watch-grid"></div>
+  </section>
   <div class="filters"><div class="category-buttons" id="category-buttons" role="group" aria-label="Filter category"><button class="category-btn active" data-category="All" aria-pressed="true">All categories</button><button class="category-btn" data-category="Watches" aria-pressed="false">Watches</button><button class="category-btn" data-category="Cameras" aria-pressed="false">Cameras</button><button class="category-btn" data-category="Collectibles" aria-pressed="false">Collectibles</button></div><label class="sort-label">Sort <select id="sort-by"><option value="gap">Largest sample gap</option><option value="name">Product name</option></select></label></div>
   <div class="live-feed" id="live-feed-wrap" hidden><div class="live-feed-head"><div><strong>Marketplace listing snapshots</strong><span id="live-feed-time">Source: authorized eBay Browse API</span></div><small>Actual listings · NOT verified bargains</small></div><div class="live-feed-grid" id="live-feed-cards"></div></div>
   <div class="scenarios" id="scenario-cards" aria-live="polite"><p>Loading comparisons…</p></div>
