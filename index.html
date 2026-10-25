@@ -51,6 +51,11 @@
 <section class="section discover" id="discover">
  <div class="wrap">
   <div class="section-top"><div><span class="section-kicker">01 / THE EXPLORER</span><h2>Explore the price <i>landscape.</i></h2><p>See how sample prices differ across markets, then jump directly to real marketplace searches.</p></div><div class="status-box"><span class="status-icon">i</span><div><strong>Illustrative comparisons</strong><small>These examples are synthetic, not live deals. Real listing feeds are not connected yet.</small></div></div></div>
+  <div class="global-results" id="global-market-results" hidden>
+    <div class="global-results-head"><div><span class="section-kicker">SEARCH CURRENT MARKETPLACES</span><h3>Real-world searches for <span id="global-product-name"></span></h3></div><button type="button" id="clear-global-search" aria-label="Clear search">Clear search ×</button></div>
+    <div id="global-market-grid" class="global-market-grid"></div>
+    <p class="global-search-note">Links open live searches on the original marketplaces. DealAtlas does not collect, verify or rank those results. “Sold results” are research starting points; final transaction amounts may differ from displayed prices.</p>
+  </div>
   <div class="filters"><div class="category-buttons" id="category-buttons" role="group" aria-label="Filter category"><button class="category-btn active" data-category="All" aria-pressed="true">All categories</button><button class="category-btn" data-category="Watches" aria-pressed="false">Watches</button><button class="category-btn" data-category="Cameras" aria-pressed="false">Cameras</button><button class="category-btn" data-category="Collectibles" aria-pressed="false">Collectibles</button></div><label class="sort-label">Sort <select id="sort-by"><option value="gap">Largest sample gap</option><option value="name">Product name</option></select></label></div>
   <div class="live-feed" id="live-feed-wrap" hidden><div class="live-feed-head"><div><strong>Marketplace listing snapshots</strong><span id="live-feed-time">Source: authorized eBay Browse API</span></div><small>Actual listings · NOT verified bargains</small></div><div class="live-feed-grid" id="live-feed-cards"></div></div>
   <div class="scenarios" id="scenario-cards" aria-live="polite"><p>Loading comparisons…</p></div>
@@ -68,6 +73,17 @@
       <label>What are you comparing?<input id="deal-query" placeholder="e.g. Omega Speedmaster 3510.50" required maxlength="160"></label>
       <div class="form-two"><label>Asking price<input id="deal-price" type="number" min="0" step="any" inputmode="decimal" placeholder="850" required></label><label>Currency<select id="deal-currency"><option value="USD">USD — US dollar</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option><option value="JPY">JPY — Yen</option><option value="AUD">AUD — Australian dollar</option></select></label></div>
       <div class="form-two"><label>Estimated market value (USD)<input id="deal-target" type="number" min="0.01" step="any" inputmode="decimal" placeholder="1200" required></label><label>Seller market<select id="deal-origin"><option value="US">United States</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="JP">Japan</option><option value="AU">Australia</option></select></label></div>
+      <details class="sold-comps-panel" id="sold-comps-panel">
+        <summary>Have sold comparables? <span>Calculate a benchmark from real sales</span></summary>
+        <div class="comps-content">
+          <p>Paste at least 3 prices from genuinely sold, similarly conditioned items, one per line, with the currency. Example: <strong>850 USD</strong>. These prices are provided by you, not verified by DealAtlas.</p>
+          <label for="sold-comps">Sold prices (one per line)</label>
+          <textarea id="sold-comps" rows="5" placeholder="850 USD&#10;790 EUR&#10;132,000 JPY"></textarea>
+          <button type="button" id="estimate-value-btn" class="estimate-value-btn">Use median as market benchmark ↗</button>
+          <div id="comps-feedback" class="comps-feedback" role="status" aria-live="polite"></div>
+          <small>Use comparable models, similar condition, and recent sold transactions. This estimate excludes fees, shipping and taxes.</small>
+        </div>
+      </details>
       <div class="form-two"><label>Shipping (USD)<input id="deal-shipping" type="number" min="0" step="any" inputmode="decimal" value="0"></label><label>Other costs (USD)<input id="deal-costs" type="number" min="0" step="any" inputmode="decimal" value="0"></label></div>
       <button class="calculate-button" type="submit">Calculate potential price gap <span aria-hidden="true">↗</span></button>
     </form>
