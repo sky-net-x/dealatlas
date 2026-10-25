@@ -1,0 +1,133 @@
+{
+  "disclaimer": "Synthetic illustrations only. Not scraped listings, real seller prices, or verified bargains.",
+  "generated": "2026-10-25",
+  "markets": [
+    {
+      "id": "US",
+      "name": "United States",
+      "currency": "USD",
+      "platform": "eBay US",
+      "url": "https://www.ebay.com"
+    },
+    {
+      "id": "DE",
+      "name": "Germany",
+      "currency": "EUR",
+      "platform": "eBay DE",
+      "url": "https://www.ebay.de"
+    },
+    {
+      "id": "GB",
+      "name": "United Kingdom",
+      "currency": "GBP",
+      "platform": "eBay UK",
+      "url": "https://www.ebay.co.uk"
+    },
+    {
+      "id": "JP",
+      "name": "Japan",
+      "currency": "JPY",
+      "platform": "Mercari JP",
+      "url": "https://jp.mercari.com"
+    },
+    {
+      "id": "AU",
+      "name": "Australia",
+      "currency": "AUD",
+      "platform": "eBay AU",
+      "url": "https://www.ebay.com.au"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "seiko-skx007",
+      "name": "Seiko SKX007",
+      "category": "Watches",
+      "icon": "⌚",
+      "description": "Popular discontinued diver. Verify originality, bezel, and service history.",
+      "query": "Seiko SKX007 automatic",
+      "prices": {
+        "US": 420,
+        "DE": 385,
+        "GB": 335,
+        "JP": 46000,
+        "AU": 680
+      }
+    },
+    {
+      "id": "sony-a7iii",
+      "name": "Sony Alpha a7 III body",
+      "category": "Cameras",
+      "icon": "📷",
+      "description": "Condition and shutter count are essential. Compare body-only listings.",
+      "query": "Sony A7 III body only",
+      "prices": {
+        "US": 1190,
+        "DE": 1110,
+        "GB": 970,
+        "JP": 131000,
+        "AU": 1780
+      }
+    },
+    {
+      "id": "lego-10221",
+      "name": "LEGO 10221 Super Star Destroyer",
+      "category": "Collectibles",
+      "icon": "🧱",
+      "description": "Check completeness, instructions and original packaging.",
+      "query": "LEGO 10221 complete",
+      "prices": {
+        "US": 920,
+        "DE": 860,
+        "GB": 810,
+        "JP": 140000,
+        "AU": 1580
+      }
+    },
+    {
+      "id": "nikon-f3",
+      "name": "Nikon F3 film camera",
+      "category": "Cameras",
+      "icon": "📸",
+      "description": "Meter and shutter accuracy matter more than cosmetic appearance.",
+      "query": "Nikon F3 camera body",
+      "prices": {
+        "US": 405,
+        "DE": 410,
+        "GB": 350,
+        "JP": 49000,
+        "AU": 640
+      }
+    },
+    {
+      "id": "omega-speedmaster",
+      "name": "Omega Speedmaster Reduced 3510.50",
+      "category": "Watches",
+      "icon": "🕰️",
+      "description": "Service history can materially change the value.",
+      "query": "Omega Speedmaster 3510.50",
+      "prices": {
+        "US": 2480,
+        "DE": 2540,
+        "GB": 2240,
+        "JP": 335000,
+        "AU": 3880
+      }
+    },
+    {
+      "id": "gameboy-sp",
+      "name": "Game Boy Advance SP AGS-101",
+      "category": "Collectibles",
+      "icon": "🎮",
+      "description": "AGS-101 screen, hinges, and shell authenticity should be checked.",
+      "query": "Gameboy Advance SP AGS 101",
+      "prices": {
+        "US": 175,
+        "DE": 165,
+        "GB": 145,
+        "JP": 21500,
+        "AU": 285
+      }
+    }
+  ]
+}
