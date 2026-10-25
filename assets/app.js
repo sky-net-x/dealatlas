@@ -1,4 +1,4 @@
-import {toUSD, calculateGap, marketplaceUrl, shortMoney, rangeForScenario} from './logic.mjs';
+import {toUSD, calculateGap, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -49,6 +49,21 @@ function scenarioCard(item){
  '<p class="details-caption">Illustrative figures for UI testing only. Search links lead to current marketplace results; prices above do not come from those results. Cross-border taxes, fees, condition and shipping are excluded.</p></div>'+
  '</div></article>';
 }
+function renderGlobalMarketSearch(){
+  const query=currentSearch.trim();
+  const panel=$('#global-market-results');
+  if(!query || !markets.length){panel.hidden=true;return}
+  panel.hidden=false;
+  $('#global-product-name').textContent=query;
+  $('#global-market-grid').innerHTML=markets.map(m=>{
+    const sold=soldSearchUrl(m.id,query);
+    return '<div class="market-destination"><span class="dest-flag">'+marketFlags[m.id]+'</span><h4>'+escapeHtml(m.name)+'</h4><small>'+escapeHtml(m.platform)+' · '+escapeHtml(m.currency)+'</small>'+
+    '<div class="dest-actions"><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(marketplaceUrl(m.id,query))+'">Live listings ↗</a>'+
+    (sold?'<a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(sold)+'">Sold search ↗</a>':'')+
+    '</div></div>';
+  }).join('');
+}
+
 function renderScenarios() {
   const query=currentSearch.toLowerCase().trim();
   let filtered=scenarios.filter(x=>(currentCategory==='All'||x.category===currentCategory) && (!query || (x.name+' '+x.category+' '+x.query).toLowerCase().includes(query)));
@@ -62,7 +77,7 @@ function renderScenarios() {
     btn.textContent=open?'Hide markets':'Compare all 5';
   }));
 }
-function updateUI(){renderHero();renderScenarios();updateQuickLinks($('#deal-query').value||currentSearch);}
+function updateUI(){renderHero();renderScenarios();renderGlobalMarketSearch();updateQuickLinks($('#deal-query').value||currentSearch);}
 
 async function loadSampleData(){
  const response=await fetch('data/demo-scenarios.json',{cache:'no-store'});
@@ -152,13 +167,30 @@ function wireEvents(){
   currentSearch=$('#main-search').value.trim();
   $('#deal-query').value=currentSearch;
   updateQuickLinks(currentSearch);
-  renderScenarios();renderLiveSnapshots();
+  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
   document.querySelector('#discover').scrollIntoView({behavior:'smooth'});
  });
  $$('.text-chip').forEach(btn=>btn.addEventListener('click',()=>{
   $('#main-search').value=btn.dataset.query;
   $('#global-search').requestSubmit();
  }));
+ $('#clear-global-search').addEventListener('click',()=>{
+  currentSearch='';
+  $('#main-search').value='';
+  renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
+ });
+ $('#estimate-value-btn').addEventListener('click',()=>{
+  const feedback=$('#comps-feedback');
+  const result=estimateFromSoldComparables($('#sold-comps').value,fx);
+  if(result.error){
+    feedback.classList.add('error');
+    feedback.textContent=result.error;
+    return;
+  }
+  $('#deal-target').value=result.medianUsd.toFixed(2);
+  feedback.classList.remove('error');
+  feedback.textContent='Median '+shortMoney(result.medianUsd)+' from '+result.count+' user-provided sales. Range: '+shortMoney(result.minUsd)+' – '+shortMoney(result.maxUsd)+'. Check that items have similar condition, model and sale date.';
+ });
  $('#deal-query').addEventListener('input',e=>updateQuickLinks(e.target.value));
  $('#deal-form').addEventListener('submit',e=>{e.preventDefault();showResult()});
  $('#deal-origin').addEventListener('change',e=>{
