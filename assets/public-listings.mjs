@@ -6,7 +6,7 @@ const MAX_QUERY_LENGTH=80;
 const idPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const storePattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export function buildListingSearchUrl({query='',category='All',offset=0,limit=12}={}) {
+export function buildListingSearchUrl({query='',category='All',offset=0,limit=12,sort=null}={}) {
   if(typeof query!=='string'||query.length>160)throw Error('Query is too long');
   const q=query.trim().slice(0,MAX_QUERY_LENGTH);
   if(!RESELL_CATEGORIES.includes(category))throw Error('Unsupported category');
@@ -15,7 +15,8 @@ export function buildListingSearchUrl({query='',category='All',offset=0,limit=12
   const url=new URL(RESELL_PUBLIC_BASE);
   if(q)url.searchParams.set('q',q);
   if(category!=='All')url.searchParams.set('category',category);
-  url.searchParams.set('sort',q?'best':'newest');
+  if(sort!==null && !['best','newest','price-asc','price-desc'].includes(sort))throw Error('Unsupported sort order');
+  url.searchParams.set('sort',sort || (q?'best':'newest'));
   url.searchParams.set('limit',String(limit));
   url.searchParams.set('offset',String(offset));
   return url.toString();

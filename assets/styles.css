@@ -128,3 +128,36 @@
 .explorer-unavailable{grid-column:1/-1;font-size:12px;color:#647668;line-height:1.7;padding:15px}
 @media(max-width:760px){.explorer-header{flex-direction:column}.explorer-form{grid-template-columns:1fr 1fr}.explorer-query-label{grid-column:1/-1}.explorer-form button{align-self:end}.explorer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.public-explorer{padding:18px 15px}.explorer-grid{grid-template-columns:1fr}.explorer-form{grid-template-columns:1fr}.explorer-header h3{font-size:20px}.explorer-form button{width:100%}}
+
+
+/* Personal saved watches: user-initiated checks only, no push or scheduled jobs. */
+.watchlist-section{background:#fff;border:1px solid #d9e3e0;border-radius:17px;padding:25px;margin:0 0 32px;box-shadow:0 6px 28px #1b4a3920}
+.watchlist-heading{display:flex;justify-content:space-between;align-items:start;gap:25px}
+.watchlist-heading h3{font:800 22px var(--display);letter-spacing:-.04em;margin:11px 0}
+.watchlist-heading p{max-width:720px;color:#627b70;line-height:1.7;font-size:11px}
+.watch-check-all{background:#1d4535;border:0;border-radius:9px;color:#fff;padding:13px 17px;font-size:11px;font-weight:800;white-space:nowrap}
+.watch-check-all:disabled,.watch-card-actions button:disabled{opacity:.48;cursor:not-allowed}
+.watch-form{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;margin:21px 0 12px}
+.watch-form label{display:grid;gap:7px;font-size:11px;color:#526c60;font-weight:800}
+.watch-form input,.watch-form select{min-width:0;width:100%;padding:12px;border:1px solid #c9dcd3;border-radius:9px;font-size:12px;background:#f8fbf9;color:#294837;min-height:42px}
+.watch-form>button{height:42px;border-radius:9px;background:#ddede3;border:1px solid #b9d7c4;color:#285942;font-size:11px;font-weight:800;padding:0 15px;white-space:nowrap}
+.watch-notice{font-size:11px;line-height:1.7;color:#6e8779;margin:8px 0 16px}
+.watch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.watch-card{border-radius:12px;border:1px solid #dfe9e1;background:#f9fcfa;padding:17px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.watch-card-heading{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.watch-card-heading h4{font:800 14px var(--display);color:#234034;line-height:1.5;word-break:break-word}
+.watch-card-heading small{display:block;color:#698276;font-size:10px;margin-top:6px;line-height:1.5}
+.watch-remove{font-size:18px;line-height:1;width:28px;height:28px;display:grid;place-items:center;border:1px solid #dce8e1;border-radius:7px;background:#fff;color:#63756f;flex-shrink:0}
+.watch-result-status{color:#456f58;font-size:11px;line-height:1.6}
+.watch-match-list{display:grid;gap:6px}
+.watch-match-list a{border:1px solid #d8e8de;border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;background:#fff}
+.watch-match-list a span{line-height:1.5;overflow-wrap:anywhere}
+.watch-match-list a strong{white-space:nowrap;color:#23744b}
+.watch-card-actions{display:flex;gap:8px;margin-top:auto}
+.watch-card-actions button{border:1px solid #cddfd1;border-radius:8px;padding:10px;flex:1;font-size:11px;font-weight:800;background:#fff;color:#275842}
+.watch-card-actions button:first-child{background:#25533d;color:#fff;border-color:#25533d}
+.watch-caveat,.watch-empty{font-size:10px;line-height:1.6;color:#7b897c}
+.watch-empty-state{grid-column:1/-1;border:1px dashed #cee1d5;border-radius:12px;padding:24px;text-align:center;color:#658375;font-size:12px;line-height:1.7}
+@media(max-width:900px){.watch-form{grid-template-columns:1fr 1fr}.watch-form label:first-child{grid-column:1/-1}.watch-form>button{align-self:end}}
+@media(max-width:640px){.watch-grid{grid-template-columns:1fr}.watchlist-heading{flex-direction:column}.watch-check-all{width:100%}}
+@media(max-width:520px){.watchlist-section{padding:19px 15px}.watch-form{grid-template-columns:1fr}.watch-form label:first-child{grid-column:auto}.watch-form>button{width:100%}}

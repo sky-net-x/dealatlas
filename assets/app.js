@@ -1,6 +1,7 @@
 import {toUSD, marketplaceUrl, soldSearchUrl, estimateFromSoldComparables, shortMoney, rangeForScenario} from './logic.mjs';
 import {describeSoldSample, evaluateResaleCase} from './valuation.mjs';
 import {buildListingSearchUrl,normalizePublicSearch} from './public-listings.mjs';
+import {WATCH_STORAGE_KEY,MAX_WATCHES,readWatchlist,createOrUpdateWatch,serializeWatchlist,selectWatchCandidates} from './watchlist.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -230,6 +231,141 @@ function prefillPublicListing(id){
   $('#compare').scrollIntoView({behavior:'smooth'});
 }
 
+let savedWatches=[];
+let watchStorageAvailable=true;
+let watchResults=new Map();
+let watchCheckBusy=false;
+
+function showWatchNotice(message){
+  $('#watch-notice').textContent=message;
+}
+function initializeWatches(){
+  try{
+    savedWatches=readWatchlist(localStorage.getItem(WATCH_STORAGE_KEY));
+  }catch(error){
+    watchStorageAvailable=false;
+    savedWatches=[];
+    showWatchNotice('This browser blocks local storage. Watches work only while this page stays open.');
+  }
+  renderWatches();
+}
+function saveWatches(){
+  if(!watchStorageAvailable)return;
+  try{
+    localStorage.setItem(WATCH_STORAGE_KEY,serializeWatchlist(savedWatches));
+  }catch(error){
+    watchStorageAvailable=false;
+    showWatchNotice('Browser storage unavailable; watches are temporary for this visit.');
+  }
+}
+function watchCard(watch){
+  const state=watchResults.get(watch.id);
+  const head='<div class="watch-card-heading"><div><h4>'+escapeHtml(watch.query)+'</h4><small>'+escapeHtml(watch.category==='All'?'All categories':watch.category)+' · max ask '+escapeHtml(shortMoney(watch.maxAskUsd))+' USD</small></div>'+
+    '<button type="button" class="watch-remove" data-watch-id="'+escapeHtml(watch.id)+'" aria-label="Remove watch '+escapeHtml(watch.query)+'">×</button></div>';
+  let body='';
+  if(!state){
+    body='<p class="watch-result-status">Not checked yet. Results are retrieved only when you request them.</p>';
+  }else if(state.loading){
+    body='<p class="watch-result-status">Checking the source now…</p>';
+  }else if(state.error){
+    body='<p class="watch-result-status">Source unavailable. No match claims were made.</p>';
+  }else{
+    body='<p class="watch-result-status">'+state.matches.length+' candidate'+(state.matches.length===1?'':'s')+
+      ' under your asking-price limit, from '+state.inspected+' source results checked'+
+      (state.more?' (more may exist)':'')+'. Checked '+escapeHtml(state.time)+'.</p>';
+    body+=state.matches.length?'<div class="watch-match-list">'+state.matches.map(x=>
+      '<a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(x.url)+'"><span>'+escapeHtml(x.title)+'</span><strong>'+escapeHtml(shortMoney(x.priceUsd))+'</strong></a>'
+    ).join('')+'</div>':'<p class="watch-empty">No matching seller asks in the first checked page. This is not evidence that the item is unavailable elsewhere.</p>';
+  }
+  return '<article class="watch-card" data-watch="'+escapeHtml(watch.id)+'">'+head+body+
+    '<div class="watch-card-actions"><button type="button" class="watch-check-one" data-watch-id="'+escapeHtml(watch.id)+'" '+(watchCheckBusy?'disabled':'')+'>Check now ↻</button>'+
+    '<button type="button" class="watch-explore-one" data-watch-id="'+escapeHtml(watch.id)+'">Search globally →</button></div>'+ 
+    '<p class="watch-caveat">Budget applies to asking price only; exclude shipping, taxes, fees and condition. Listings may be demos.</p></article>';
+}
+function renderWatches(){
+  const grid=$('#watch-grid'),all=$('#watch-check-all');
+  grid.innerHTML=savedWatches.length?savedWatches.map(watchCard).join(''):
+    '<div class="watch-empty-state">No saved watches yet. Add a product and maximum asking price above to build your private shortlist.</div>';
+  all.disabled=watchCheckBusy || !savedWatches.length;
+  all.textContent=watchCheckBusy?'Checking source…':'Check watches ↻';
+}
+async function checkWatch(watch){
+  watchResults.set(watch.id,{loading:true});
+  renderWatches();
+  let timeout;
+  const controller=new AbortController();
+  try{
+    timeout=setTimeout(()=>controller.abort(),12000);
+    // Price ascending makes the first page useful for a maximum-ask watch.
+    const url=buildListingSearchUrl({query:watch.query,category:watch.category,limit:20,sort:'price-asc'});
+    const response=await fetch(url,{cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw new Error('Source HTTP '+response.status);
+    const payload=await response.json();
+    const normalized=normalizePublicSearch(payload,{limit:20,offset:0});
+    // A watch always uses exact returned asking amounts, never inferred resale value.
+    const matches=selectWatchCandidates(watch,normalized.listings);
+    watchResults.set(watch.id,{matches,inspected:payload.data.length,more:normalized.hasMore,time:new Date().toLocaleTimeString()});
+  }catch(error){
+    watchResults.set(watch.id,{error:true});
+  }finally{
+    clearTimeout(timeout);
+    renderWatches();
+  }
+}
+async function checkSavedWatches(id=null){
+  if(watchCheckBusy)return;
+  const items=id?savedWatches.filter(w=>w.id===id):[...savedWatches];
+  if(!items.length)return;
+  watchCheckBusy=true;
+  renderWatches();
+  for(const watch of items){
+    // It may have been removed while the request was pending.
+    if(savedWatches.some(w=>w.id===watch.id))await checkWatch(watch);
+  }
+  watchCheckBusy=false;
+  renderWatches();
+  showWatchNotice('Check finished. Results reflect seller asking prices from the source, not verified deals. No automatic monitoring or notifications are enabled.');
+}
+function addWatchFromForm(){
+  const input={
+    query:$('#watch-query').value,category:$('#watch-category').value,
+    maxAskUsd:$('#watch-budget').value===''?NaN:Number($('#watch-budget').value)
+  };
+  try{
+    const before=savedWatches.find(w=>w.query.toLowerCase()===input.query.trim().toLowerCase()&&w.category===input.category);
+    savedWatches=createOrUpdateWatch(savedWatches,input,'w_'+crypto.randomUUID());
+    // A changed budget invalidates prior short-lived results.
+    const affected=savedWatches.find(w=>w.query.toLowerCase()===input.query.trim().toLowerCase()&&w.category===input.category);
+    if(affected)watchResults.delete(affected.id);
+    saveWatches();
+    renderWatches();
+    if(watchStorageAvailable)showWatchNotice(before?'Price limit updated and saved in this browser.':'Watch saved privately in this browser. Click “Check now” to search.');
+    $('#watch-budget').value='';
+  }catch(error){
+    showWatchNotice(error.message);
+  }
+}
+function removeWatch(id){
+  savedWatches=savedWatches.filter(w=>w.id!==id);
+  watchResults.delete(id);
+  saveWatches();
+  renderWatches();
+  showWatchNotice('Watch removed from this browser.');
+}
+function exploreWatch(id){
+  const watch=savedWatches.find(w=>w.id===id);
+  if(!watch)return;
+  $('#public-market-query').value=watch.query;
+  $('#public-market-category').value=watch.category;
+  $('#main-search').value=watch.query;
+  currentSearch=watch.query;
+  renderGlobalMarketSearch();
+  renderScenarios();
+  renderLiveSnapshots();
+  fetchPublicListings();
+  $('#global-market-results').scrollIntoView({behavior:'smooth'});
+}
+
 let liveSnapshotItems = [], liveSnapshotDate = null;
 function renderLiveSnapshots() {
  const wrap=$('#live-feed-wrap');
@@ -259,6 +395,16 @@ async function loadLiveSnapshots(){
 }
 
 function wireEvents(){
+  $('#watch-form').addEventListener('submit',e=>{e.preventDefault();addWatchFromForm()});
+  $('#watch-check-all').addEventListener('click',()=>checkSavedWatches());
+  $('#watch-grid').addEventListener('click',e=>{
+    const btn=e.target.closest('button[data-watch-id]');
+    if(!btn)return;
+    const id=btn.dataset.watchId;
+    if(btn.classList.contains('watch-remove'))removeWatch(id);
+    if(btn.classList.contains('watch-check-one'))checkSavedWatches(id);
+    if(btn.classList.contains('watch-explore-one'))exploreWatch(id);
+  });
  $('#public-market-form').addEventListener('submit',e=>{e.preventDefault();fetchPublicListings()});
  $('#public-market-more').addEventListener('click',()=>fetchPublicListings({append:true}));
  $('#public-market-cards').addEventListener('click',e=>{
@@ -278,6 +424,7 @@ function wireEvents(){
   updateQuickLinks(currentSearch);
   renderScenarios();renderLiveSnapshots();renderGlobalMarketSearch();
   $('#public-market-query').value=currentSearch;
+  if(!$('#watch-query').value)$('#watch-query').value=currentSearch;
   fetchPublicListings();
   document.querySelector('#discover').scrollIntoView({behavior:'smooth'});
  });
@@ -309,6 +456,7 @@ function wireEvents(){
   if(currency)$('#deal-currency').value=currency;
  });
 }
+initializeWatches();
 wireEvents();
 try{await loadSampleData()}catch(error){$('#scenario-cards').innerHTML='<div class="no-data">The sample dataset could not load. Serve this site via HTTP or GitHub Pages, not by opening index.html directly as a file.</div>';console.error(error)}
 await loadFX();
